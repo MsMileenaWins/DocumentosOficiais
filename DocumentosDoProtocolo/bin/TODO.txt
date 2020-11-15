@@ -1,0 +1,7 @@
+
+refactor mygui
+add "atualizar lista" button 
+criar javadoc
+ver se todo mundo em graphicInterface é pra estar lá
+usar BD
+ver biblioteca grafica melhor
