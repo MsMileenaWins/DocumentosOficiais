@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="DocumentosDoProtocolo/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JDatePicker-master_JDatePicker-master"/>
+	<classpathentry kind="output" path="DocumentosDoProtocolo/bin"/>
+</classpath>
