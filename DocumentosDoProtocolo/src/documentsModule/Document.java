@@ -1,26 +1,16 @@
 package documentsModule;
 
-
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Scanner;
- 
-
 
 /**
  * this class represents a document of a specific type (ofício, memo or resolução)
  * 
  */
 
-public class Document implements Serializable {
+public class Document  {
 
-	
-
-	private static final long serialVersionUID = 1L;
+	private int id;
 	private TYPE type;
 	private LocalDate date;
 	private String number;
@@ -30,12 +20,24 @@ public class Document implements Serializable {
 
 	/**
 	 * Constructs a new document. 
-	 *  All attributes are passed as arguments ( type, date, number, subject, origin and destination)
+	 *  All attributes except id are passed as arguments ( type, date, number, subject, origin and destination)
 	 */	
 	
 	public Document(TYPE type, LocalDate date, String number, String subject, String origin, String destination){
+		this.type = type;
+		this.date = date;
+		this.number=number;
+		this.subject=subject;
+		this.origin=origin;
+		this.destination=destination;		
+	}
+	/**
+	 * Constructs a new document. 
+	 *  All attributes are passed as arguments ( type, date, number, subject, origin and destination)
+	 */	
+	public Document(int id,TYPE type, LocalDate date, String number, String subject, String origin, String destination){
 		
-	  
+		this.id = id;
 		this.type = type;
 		this.date = date;
 		this.number=number;
@@ -44,6 +46,21 @@ public class Document implements Serializable {
 		this.destination=destination;		
 	}
 
+	/**
+	 * sets the attribute id
+	 *
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+	/**
+	 * gets the attribute id
+	 *
+	 */	
+	public int getId() {		
+		return this.id;
+	}
+	
 	/**
 	 * returns the type of the document as an enum TYPE
 	 *
@@ -57,9 +74,6 @@ public class Document implements Serializable {
 	 *
 	 */
 	
-	/**
-	 * @return
-	 */
 	public LocalDate getDate() {
 		return date;
 	}
@@ -69,11 +83,8 @@ public class Document implements Serializable {
 	 *
 	 */
 	public void setDate(String dateStr) {
-					
 		LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-
 		this.date = date;
-	
 	}
 
 	/**
@@ -137,9 +148,6 @@ public class Document implements Serializable {
 	public void setDestination(String destination) {
 		this.destination = destination;
 	}
-
-	
-
 	/**
 	 * returns the string representations of the document's attributes
 	 *
@@ -150,7 +158,7 @@ public class Document implements Serializable {
 		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		
-		return  String.format("|%20s",type.toString())
+		return String.format("|%20s",type.toString())
 		+ " | "
 		+ String.format("|%20s",date.format(formatter))
 		+ " | "	
@@ -162,6 +170,8 @@ public class Document implements Serializable {
 		+ " | "
 		+ String.format("|%20s",destination);
 	}
+
+
 
 
 	

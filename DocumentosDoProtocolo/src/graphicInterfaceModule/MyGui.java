@@ -6,9 +6,6 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
 
 import javax.swing.*;
 
@@ -16,16 +13,12 @@ import org.jdatepicker.DatePicker;
 import org.jdatepicker.JDatePicker;
 import org.jdatepicker.UtilCalendarModel;
 
-import documentsModule.SubjectCriterion;
-import documentsModule.DateCriterion;
-import documentsModule.DestinationCriterion;
-import documentsModule.NumberCriterion;
-import documentsModule.OriginCriterion;
+import DAO.CRITERION;
+import DAO.DocumentDAO;
 import documentsModule.Document;
 import documentsModule.DocumentUtils;
-import documentsModule.Filtering;
 import documentsModule.TYPE;
-import recorderModule.DocumentsRecorder;  
+
   
 /**
  * this class represents the entire graphical interface accessed by the user
@@ -33,9 +26,6 @@ import recorderModule.DocumentsRecorder;
  */
 
 public class MyGui extends JFrame{  
-	
-		
-	
 
 	private JPanel panel;
 	private JPanel labelPanel;
@@ -67,14 +57,13 @@ public class MyGui extends JFrame{
 	private JRadioButton filterByDestination;
 	private ButtonGroup filterBybtnGroup;
 	private JButton filterByBtn;
-	private DocumentsRecorder recorder;
 	private TYPE type = TYPE.OFICIO;
-	private int realListIndex[];
+	private int IDs[];
 	
 	public static void main(String[] args) {  
 		new MyGui();  
 		
-		}  
+	}  
 	
 		public MyGui(){
 			
@@ -102,6 +91,7 @@ public class MyGui extends JFrame{
 		datePicker.setTextEditable(true);
 	    datePicker.setShowYearButtons(true);
 		 
+		
 		textField2 = new JTextField();	
 		textField3 = new JTextField();		 
 		textField4 = new JTextField();		
@@ -205,25 +195,20 @@ public class MyGui extends JFrame{
 		
 	}
 
-		private class ListenForSaveBtn implements ActionListener{
+			private class ListenForSaveBtn implements ActionListener{
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
 					if (emptyFields()) {
 						JOptionPane.showMessageDialog(null, "Preencha todos os campos.");
-					
-
 					}
 					else {
 						Document document = createDocument();
-						recorder.saveDocument(document);
-						
+						DocumentDAO docDAO = new DocumentDAO();
+						docDAO.saveDocument(document);
 						updateList();
-					}
-						
-					
-					
+					}											
 				}	
 				private boolean emptyFields() {
 
@@ -238,65 +223,27 @@ public class MyGui extends JFrame{
 						return false;					
 				}
 				
-				private Document createDocument() {
-
-					TYPE type;
-					switch(comboBox.getSelectedIndex()) {
-					
-					case 0: 
-						type= TYPE.OFICIO;
-						break;
-					case 1:
-						type= TYPE.MEMO;
-						break;
-					case 2:
-						type= TYPE.RESOLUCAO;
-						break;
-					default:
-						type= TYPE.OFICIO;
-					}
-					
-					LocalDate date = getDatePickerDate();						
-					String textField2Str = textField2.getText().trim();
-					String textField3Str = textField3.getText().trim();
-					String textField4Str = textField4.getText().trim();
-					String textField5Str = textField5.getText().trim();
-					Document document= new Document(type,date,textField2Str,textField3Str,textField4Str,textField5Str); 
-					return document;
-				}			
-			}
-			
-			
-		
+				
+			}		
 			
 			private class ListenForDeleteBtn implements ActionListener{
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 									
-					int apparentIndex = list.getSelectedIndex();
-					if(apparentIndex < 0)
-						return; // nothing is selected
-					int realIndex = realListIndex[apparentIndex];
-					
-					DefaultListModel<String> listModel = (DefaultListModel<String>) list.getModel();					
-					listModel.remove(apparentIndex);
-					list.setModel(listModel);
-					
-					ArrayList<Document> documents = recorder.readDocuments(type);
-					documents.remove(realIndex); 
-					recorder.recordDocuments(type,documents);					
+					int index = list.getSelectedIndex();
+					int id = IDs[index]; // get id's from array IDs[] where they were previously stored
+					DocumentDAO docDAO = new DocumentDAO();
+					docDAO.deleteDocument(id, type);
+					updateList();
 				}
 			}
 
 			private class ListenForRestoreBtn implements ActionListener{
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
-
 					updateList();
 				}
-
 			}
 			
 			private class ListenForFilterByBtn implements ActionListener{
@@ -305,119 +252,76 @@ public class MyGui extends JFrame{
 				public void actionPerformed(ActionEvent e) {
 					
 					String radioSelection =filterBybtnGroup.getSelection().getActionCommand();
-					ArrayList<Document> documents = recorder.readDocuments(type);
-					Filtering criterion = null;
-					
-					switch(radioSelection) {
-					
+					CRITERION criterion=null;										
+					switch(radioSelection) {					
 					case "Data":
-						LocalDate date = getDatePickerDate();
-						if(date != null) {                 																			
-							 criterion = new DateCriterion(date);																				
-							}
-						break;
-												
+						criterion = CRITERION.DATE;
+						break;												
 					case "Número":
-						String textField2Str = textField2.getText().trim();
-											
-						if(textField2Str!= null) {
-							criterion = new NumberCriterion(textField2Str);
-						}
+						criterion = CRITERION.NUMBER;
 						break;
-					case "Assunto":
-						
-						String textField3Str = textField3.getText().trim();
-						
-						if(textField3Str!= null) {							
-							 criterion = new SubjectCriterion(textField3Str);						
-						}
-						break;
-						
+					case "Assunto":						
+						criterion = CRITERION.SUBJECT;
+						break;						
 					case "Origem":
-						String textField4Str = textField4.getText().trim();
-										
-						if(textField4Str!= null) {
-							criterion = new OriginCriterion(textField4Str);	
-						}
-						
-					case "Destino":
-						String textField5Str = textField5.getText();
-						
-						if(textField5Str!= null) {
-							criterion = new DestinationCriterion(textField5Str);
-					
-						}				
+						criterion = CRITERION.ORIGIN;
 						break;
-					
-					}					
-					
-					HashMap<Integer,Document> filteredDocuments = DocumentUtils.filter(criterion, documents);
-					
-					Set<Integer> keys = filteredDocuments.keySet();
-					
-					int[] array = new int[keys.size()];
-					int index = 0;
-					for(Integer i : keys)
-						array[index++] = i.intValue();
-					realListIndex = array;
-					
-					Collection<Document> collection = (Collection<Document>)filteredDocuments.values();
-					ArrayList<Document> filteredDocumentsAL = new ArrayList<Document>(collection); 
-					DefaultListModel<String> defListModel = DocumentUtils.toDefListModel(filteredDocumentsAL);
-					
-					updateList(defListModel);					
-				
+					case "Destino":
+						criterion = CRITERION.DESTINATION;
+						break;					
+					}										
+					DocumentDAO docDAO = new DocumentDAO();
+					Document info = createDocument(); //collect data from textfields to store in an object of type Document					
+					java.util.List<Document> filteredDocuments = docDAO.filterDocuments(type, criterion, info);
+					DefaultListModel<String> defListModel = DocumentUtils.toDefListModel(filteredDocuments);
+					updateIDs(filteredDocuments);
+					updateList(defListModel);						
 				}
-
-			}
+		}
 			
 			private class ListenForComboBox implements ActionListener {
-
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-					int selectedType =  comboBox.getSelectedIndex();
-					
-					switch(selectedType) {
-					
+					int selectedType =  comboBox.getSelectedIndex();					
+					switch(selectedType) {					
 					case 0:
 						type = TYPE.OFICIO;
-						break;
-						
+						break;						
 					case 1:
 						type = TYPE.MEMO;
-						break;
-						
+						break;						
 					case 2:
-						type = TYPE.RESOLUCAO;
-						
-					}
-					
-					updateList();
-					
-				}
+						type = TYPE.RESOLUCAO;						
+					}					
+					updateList();					
+				}			
+		}
 			
-			}
-			
-			private void updateList() {
-				
-				DefaultListModel<String> defListModel = getDocListFromFile();
+			private void updateList() {				
+				DefaultListModel<String> defListModel = getDocListFromDB();
 				list.setModel(defListModel);
 			}
-
 
 			private void updateList(DefaultListModel<String> defListModel) {
-
 				list.setModel(defListModel);
 			}
-
+		
+			public void updateIDs(java.util.List<Document> docs) {
+				int i=0;
+				IDs = new int [docs.size()];
+				for(Document doc : docs) {
+					IDs[i]=doc.getId();
+					++i;
+				}				
+			}
+			
 			private LocalDate getDatePickerDate() {
 				
 				UtilCalendarModel model =  (UtilCalendarModel) datePicker.getModel();
 				int day = model.getDay();
-				int month = model.getMonth();
+				int month = model.getMonth()+1; //adding one to fix weird datePicker bug (!!!!!!!)
 				int year = model.getYear();
-				
 				String dayStr = (day < 10 ? "0"+day : ""+day );
 				String monthStr = (month < 10 ? "0"+month : ""+month );
 				String dataStr = dayStr+"/"+monthStr+"/"+year;
@@ -426,26 +330,51 @@ public class MyGui extends JFrame{
 				return data;
 			}
 
-			private DefaultListModel<String> getDocListFromFile() {
-			
-				recorder = new DocumentsRecorder();
-				ArrayList<Document> documents = recorder.readDocuments(this.type);
-				realListIndex = getStandardIndexArray(documents.size());
-				DefaultListModel<String> defListModel = DocumentUtils.toDefListModel(documents);
+		
+			private DefaultListModel<String> getDocListFromDB(){
+				
+				DocumentDAO docDAO = new DocumentDAO();
+				java.util.List<Document> docs = new ArrayList<Document>();
+				docs = docDAO.readDocuments(type);
+				//saving primary keys in array IDs
+				int i=0;
+				IDs = new int [docs.size()];
+				for(Document doc: docs) {
+					IDs[i]= doc.getId();
+					++i;
+				}
+				DefaultListModel<String> defListModel = DocumentUtils.toDefListModel(docs);
 				return defListModel;
 			}
+			
 
-			private int[] getStandardIndexArray(int length) {
-
-				int array[]= new int [length];
-				
-				for(int i =0; i<length; ++i) {
-					array[i]=i;
-				}
-				return array;
-			}
 		
-	
+			private Document createDocument() {
+
+				TYPE type;
+				switch(comboBox.getSelectedIndex()) {
+				
+				case 0: 
+					type= TYPE.OFICIO;
+					break;
+				case 1:
+					type= TYPE.MEMO;
+					break;
+				case 2:
+					type= TYPE.RESOLUCAO;
+					break;
+				default:
+					type= TYPE.OFICIO;
+				}
+				
+				LocalDate date = getDatePickerDate();
+				String textField2Str = textField2.getText().trim();
+				String textField3Str = textField3.getText().trim();
+				String textField4Str = textField4.getText().trim();
+				String textField5Str = textField5.getText().trim();
+				Document document= new Document(type,date,textField2Str,textField3Str,textField4Str,textField5Str); 
+				return document;
+			}			
 
 
 }

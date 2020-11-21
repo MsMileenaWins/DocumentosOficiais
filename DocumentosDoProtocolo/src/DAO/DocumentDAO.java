@@ -31,25 +31,18 @@ public class DocumentDAO {
 			pstm.setString(4, doc.getOrigin());
 			pstm.setString(5, doc.getDestination());
 			
-			pstm.execute();
+			pstm.execute();			
 			
-			
-		} catch (Exception e) {
-			
+		} catch (Exception e) {			
 			e.printStackTrace();
-		} finally {
-			
-			try {
-				pstm.close();
-				con.close();
-			} catch (SQLException e1) {
-				
-				e1.printStackTrace();
-			}
-		
-		}
-			
-		
+		} finally {			
+				try {
+					pstm.close();
+					con.close();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+		}		
 	}
 	
 	
@@ -67,13 +60,14 @@ public class DocumentDAO {
 			pstm = (PreparedStatement) con.prepareStatement(sql);
 			rset= pstm.executeQuery();			
 			
-			while(rset.next()) {				
+			while(rset.next()) {	
+				int id = rset.getInt("id");
 				Date date = rset.getDate("doc_date");
 				String number =rset.getString("doc_number");
 				String subject =rset.getString("doc_subject");
 				String origin =rset.getString("doc_origin");
 				String destination =rset.getString("doc_destination");				
-				Document doc = new Document (type,date.toLocalDate(),number,subject,origin,destination);
+				Document doc = new Document (id,type,date.toLocalDate(),number,subject,origin,destination);
 				documents.add(doc);
 			}	
 			
@@ -95,6 +89,8 @@ public class DocumentDAO {
 		return documents;			
 	}
 	
+	//public void updateDocument(int id, DocAtribute atribute) TODO!!!!!
+
 	public void deleteDocument(int id, TYPE type) {
 		
 		String table = type.toString().toLowerCase();
@@ -125,5 +121,65 @@ public class DocumentDAO {
 		
 	}
 	
+	public List<Document> filterDocuments( TYPE type, CRITERION criterion, Document info) {
+		
+		Connection con = null;
+		PreparedStatement pstm = null;
+		ResultSet rset =null;
+		List<Document> documents = new ArrayList<Document>();
+		String table = type.toString().toLowerCase();
+		String sql = "select * from "+table+" where doc_"+criterion.toString().toLowerCase()+"= ? ;";	
+		try {
+			con = ConnectionFactory.createConnectionToMYSQL();
+			pstm = (PreparedStatement) con.prepareStatement(sql);
+			switch(criterion) {
+			case DATE:
+				pstm.setDate(1,Date.valueOf(info.getDate()));
+				break;
+			case NUMBER:
+				pstm.setString(1, info.getNumber());
+				break;
+			case SUBJECT:
+				pstm.setString(1, info.getSubject());
+				break;
+			case ORIGIN:
+				pstm.setString(1, info.getOrigin());
+				break;
+			case DESTINATION:
+				pstm.setString(1, info.getDestination());
+				break;			
+			}
+			rset= pstm.executeQuery();			
+			
+			while(rset.next()) {	
+				int id = rset.getInt("id");
+				Date date = rset.getDate("doc_date");
+				String number =rset.getString("doc_number");
+				String subject =rset.getString("doc_subject");
+				String origin =rset.getString("doc_origin");
+				String destination =rset.getString("doc_destination");				
+				Document doc = new Document (id,type,date.toLocalDate(),number,subject,origin,destination);
+				documents.add(doc);
+			}	
+			
+		} catch (Exception e) {			
+			e.printStackTrace();
+		} finally {
+			try {
+				if(con !=null)
+					con.close();
+				if(pstm!=null) 
+					pstm.close();
+				if(rset!=null) 
+					rset.close();			
+			}
+			catch(Exception e1) {
+				System.err.println(e1.getMessage());
+			}
+		}
+		return documents;			
+	}
+	
+	 
 	
 }
