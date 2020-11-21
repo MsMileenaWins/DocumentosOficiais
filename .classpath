@@ -6,7 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="DocumentosDoProtocolo/src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JDatePicker-master_JDatePicker-master"/>
 	<classpathentry kind="lib" path="C:/Users/Carol/eclipse-workspace/DocumentosDoProtocolo/mysql-connector-java-5.1.49/mysql-connector-java-5.1.49/mysql-connector-java-5.1.49.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Carol/eclipse-workspace/DocumentosDoProtocolo/jdatepicker-2.0.3.jar"/>
 	<classpathentry kind="output" path="DocumentosDoProtocolo/bin"/>
 </classpath>

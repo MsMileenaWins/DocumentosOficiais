@@ -16,20 +16,16 @@ public class ConnectionFactory {
 	 */
 	public static Connection createConnectionToMYSQL() throws Exception {
 		//JVM loads class
-		Class.forName("com.mysql.jdbc.Driver");
-		
+		Class.forName("com.mysql.jdbc.Driver");		
 		Connection connection = DriverManager.getConnection(DATABASE_URL, USERNAME, PASSWORD);
 		return connection;	
-		}
-	public static void main(String[] args) throws Exception {
-		
-			Connection con = createConnectionToMYSQL();
-			if(con!=null) {
-				System.out.println("connection created");
-				con.close();
-				}
-			
-
-		
 	}
+//	public static void main(String[] args) throws Exception {
+//		
+//			Connection con = createConnectionToMYSQL();
+//			if(con!=null) {
+//				System.out.println("connection created");
+//				con.close();
+//				}		
+//	}
 }

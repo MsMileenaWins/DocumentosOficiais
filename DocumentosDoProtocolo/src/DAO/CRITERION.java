@@ -1,0 +1,6 @@
+package DAO;
+
+public enum CRITERION {
+	DATE,NUMBER,SUBJECT,ORIGIN,DESTINATION;
+
+}
